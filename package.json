@@ -4,9 +4,11 @@
   "description": "Yet another peer to peer encrypted file transfer utilizing NodeJS Streams for the the most effective and stealth operation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "author": "Philip A Senger <philip.a.senger@cngrgroup.com>",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "commander": "^10.0.0"
+  }
 }
