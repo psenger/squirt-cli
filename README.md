@@ -1,32 +1,30 @@
 # squirt
 
-> yet another peer to peer encrypted file transfer utilizing NodeJS Streams for the the most effective and stealth
-> operation
+> yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation
 
-## Flow
+**note** this has not been tested on anything other than MacOS with Node 16.
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant FS
-    participant Server
+## Design
 
-    Client ->> Server: Connect
-    loop Every minute
-        activate FS
-        Client ->> FS: readdirSync
-        Client ->> Server: JSON
-        Server -->> Client: OK
-        Client ->> FS: stat
-        FS -->> Client: {"stat": ..., "path": "/path/to/example.txt"}
-        deactivate FS
-        Client ->> Server: {"stat": ..., "name": "example.txt", "hash": "abcd1234", "path": "/path/to/example.txt"}
-        Server ->> Server: Parse JSON object
-        Server -->> Client: OK
-        Client ->> Server: FILE
-        Server -->> Client: OK
-        Client ->> Server: data [Byte array streamed from FS]
-        Server -->> Client: OK
-    end
-    Client ->> Server: DONE
+* `server.js` accepts files
+* `client.js` sends files
+
+## Usage - server.js
+
+```bash
+./server.js
+Enter the http Port (3000):
+Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
+Enter a Salt: Salted Peanuts taste good, but are not good for you!
+Enter a Directory: /tmp/download/
+Server listening on port 3000
+```
+## Usage - client.js
+
+```bash
+./client.js
+Enter the http Port (3000):
+Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
+Enter a Salt: Salted Peanuts taste good, but are not good for you!
+Enter a Directory: /tmp/upload
 ```
