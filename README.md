@@ -4,6 +4,8 @@
 
 **note** this has not been tested on anything other than MacOS with Node 16.
 
+You might wonder, why I use http and port 3000. This is the most ubiquitous protocol with the most used port, and is capable of penetrating firewalls and not being flagged by UTMs or any other policy enforcement tools. 
+
 ## Design
 
 * `server.js` accepts files
