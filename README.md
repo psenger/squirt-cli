@@ -12,7 +12,7 @@ capable of penetrating firewalls and not being flagged by UTMs or any other poli
 
 ```mermaid
 sequenceDiagram
-  walkDir ->>+ Client: get directory contents or recurse
+  walkDir ->>+ Client: get directory contents or recursive
   walkDir ->>+ Client: isMatch / test GLOB
   walkDir ->>+ Client: dryRun
   walkDir ->>+ Client: Do permissions permit Read
