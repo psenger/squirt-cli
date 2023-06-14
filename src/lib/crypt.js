@@ -59,11 +59,11 @@ module.exports.decryptValue = (encryptedData, passphrase, salt, iv = null, algor
  * Generate a 32 byte key based on the salt and passphrase
  * @param passphrase
  * @param salt
- * @param [keylen=32]
+ * @param [keyLength=32]
  * @return {Buffer}
  */
-module.exports.genKey = (passphrase, salt, keylen = 32) => {
-    return crypto.scryptSync(passphrase, salt, keylen)
+module.exports.genKey = (passphrase, salt, keyLength = 32) => {
+    return crypto.scryptSync(passphrase, salt, keyLength)
 }
 
 

@@ -77,6 +77,7 @@ module.exports.setTimeOnFile = (createdTime, modifiedTime, filePath) => {
 }
 /**
  * Build a file stat
+ * @param realPath
  * @param filePath
  * @return {{isFile: boolean, bytes: number, filePath, perms: {u: {r: boolean, w: boolean, x: boolean}, g: {r: boolean, w: boolean, x: boolean}, o: {r: boolean, w: boolean, x: boolean}}, isDir: boolean}}
  * @constructor
@@ -124,7 +125,7 @@ module.exports.ensurePathExists = function ensurePathExists (filePath) {
 module.exports.walkDirGen = async function* walkDirGen(basePath,fp) {
     const files = readdirSync(path.join(basePath, fp))
     for (const file of files) {
-        const {filePath, isDir, isFile, isSymLink, perms, bytes} = module.exports.buildFileStat(join(basePath, fp),file)
+        const {isDir, isFile, isSymLink, perms, bytes} = module.exports.buildFileStat(join(basePath, fp), file)
         if (isFile) {
             yield {filePath: path.join(fp, file), isDir, isFile, perms, bytes}
         } else if (isDir && !isSymLink) {
@@ -138,4 +139,25 @@ module.exports.walkDirGen = async function* walkDirGen(basePath,fp) {
  */
 module.exports.mkDirRecursivelySync = function mkDirRecursivelySync(directory) {
     mkdirSync(directory, {recursive: true})
+}
+
+const directoryseperator = string => string.replace(/\//g, '\\/')
+const dot = string => string.replace(/\./g, '\\.')
+const splatsplat = string => string.replace(/\*{2}/g, ".*")
+const question = string => string.replace(/\?/g, ".{1}")
+const splat = string => string.replace(/(?<!\*)\*(?!\*)/g, "[^\\/]*")
+const extensionGroup = string => string.replace(/\{(.*)\}/g, '($1)');
+const negativeUnixLike = string => string.replace(/\[!(.*)\]/g, '[^($1)]');
+
+/**
+ * Converts a glob to a regex
+ * @param glob {string} - The glob to convert
+ * @returns {string}
+ */
+module.exports.globToRegex = (glob) => { //, options) => {
+    // const absolute = options && options.absolute ? '^' : '';
+    return `^${[extensionGroup, dot, directoryseperator, splat, splatsplat, question, negativeUnixLike]
+            .reduce((acc, cur) => {
+                return cur(acc)
+            }, glob)}$`
 }

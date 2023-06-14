@@ -1,12 +1,41 @@
 {
-  "name": "squirt",
-  "version": "1.0.0",
-  "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
-  "main": "server.js",
-  "scripts": {
-  },
-  "author": "Philip A Senger <philip.a.senger@cngrgroup.com>",
-  "license": "MIT",
-  "dependencies": {
-  }
+    "name": "@psenger/squirt",
+    "version": "1.0.0",
+    "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
+    "main": [
+        "dist/squirt-server.js",
+        "dist/squirt-client.js",
+        "dist/squirt-server-compressed.js",
+        "dist/squirt-client-compressed.js"
+    ],
+    "source": [
+        "src/server.js",
+        "src/client.js"
+    ],
+    "bin": {
+        "squirt-server": "dist/squirt-server.js",
+        "squirt-client": "dist/squirt-client.js"
+    },
+    "scripts": {
+        "server": "node src/squirt-server.js",
+        "client": "node src/squirt-client.js",
+        "build": "npm run build:client && npm run build:server && npm run build:client-compressed && npm run build:server-compressed && npm run docs:readme",
+        "docs:readme": "node ./.github/build-readme.js",
+        "build:client-compressed": "cross-env COMPRESS=true rollup -c rollup-client.config.js && chmod 766 dist/squirt-client-compressed.js",
+        "build:client": "rollup -c rollup-client.config.js && chmod 766 dist/squirt-client.js",
+        "build:server-compressed": "cross-env COMPRESS=true rollup -c rollup-server.config.js && chmod 766 dist/squirt-server-compressed.js",
+        "build:server": "rollup -c rollup-server.config.js && chmod 766 dist/squirt-server.js"
+    },
+    "author": "Philip A Senger <philip.a.senger@cngrgroup.com>",
+    "license": "GPL-3.0-or-later",
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^25.0.1",
+        "@rollup/plugin-json": "^6.0.0",
+        "@rollup/plugin-node-resolve": "^15.1.0",
+        "@rollup/plugin-terser": "^0.4.3",
+        "cross-env": "^7.0.3",
+        "documentation": "^14.0.2",
+        "markdown-toc": "^1.2.0",
+        "rollup": "^3.25.1"
+    }
 }
