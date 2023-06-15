@@ -92,7 +92,7 @@ const run = async () => {
     } else {
         globPatterns.push(new RegExp('.*', 'igm'))
     }
-
+    const MaxWorkers = 4
     const encryptionAlgorithm = 'aes-256-cbc'
 
     /**
@@ -102,8 +102,10 @@ const run = async () => {
     const encryptionKey = genKey(passphrase, salt)
     const iv = crypto.randomBytes(16)
     const isMatch = (filePath) => globPatterns.some(globPattern => globPattern.test(filePath))
+    const promises = []
     for await (let {filePath, perms} of walkDirGen(directory, '.')) {
         if (!isMatch(filePath)) {
+            console.log(`Skipping ${filePath}, did not match any GLOBs`)
             continue
         }
         if (dryRun) {
@@ -114,27 +116,55 @@ const run = async () => {
             console.log(`Skipping ${filePath}, insufficient permissions to read the file`)
             continue
         }
-        console.log(`Sending ${filePath}`)
-        /**
-         * this is a little complicated:
-         *   the Meta Header does not have an IV, which is absolutely required if the data inside repeats.
-         *   SO, I slap in a NONCE. Yes a nonce should be the first thing, and this is JSON... but
-         *   it will do for now.
-         *
-         *   I do generate an IV ( as an attribute in the JSON payload ) as part of the Meta Header,
-         *   this IV is used to encrypt the following data in the stream. which is good, because in theory
-         *   we could transmit a file that has a bunch of repeating stuff in it and could be cracked.
-         */
-        const nonce = {
-            [crypto.randomBytes(16).toString('hex')]: crypto.randomBytes(16).toString('hex')
-        }
-        const meta = encryptValue(JSON.stringify({
-            ...nonce,
-            ...buildFileStat(directory, filePath),
-            iv: iv.toString('hex')
-        }), passphrase, salt)
-        await new Promise((resolve, reject) => {
-            const req = http.request(serverUrl, {
+        promises.push(new Promise( async (resolve, reject) => {
+            console.log(`Sending ${filePath}`)
+            /**
+             * this is a little complicated:
+             *   the Meta Header does not have an IV, which is absolutely required if the data inside repeats.
+             *   SO, I slap in a NONCE. Yes a nonce should be the first thing, and this is JSON... but
+             *   it will do for now.
+             *
+             *   I do generate an IV ( as an attribute in the JSON payload ) as part of the Meta Header,
+             *   this IV is used to encrypt the following data in the stream. which is good, because in theory
+             *   we could transmit a file that has a bunch of repeating stuff in it and could be cracked.
+             */
+            const nonce = {
+                [crypto.randomBytes(16).toString('hex')]: crypto.randomBytes(16).toString('hex')
+            }
+            const meta = encryptValue(JSON.stringify({
+                ...nonce,
+                ...buildFileStat(directory, filePath),
+                iv: iv.toString('hex')
+            }), passphrase, salt)
+
+            const getNextWorker = async function({hostname, pathname}) {
+                if (!getNextWorker.timeout) {
+                    getNextWorker.timeout = 500; // Initial timeout value
+                } else {
+                    getNextWorker.timeout *= 1.66; // Exponentially increase the timeout value
+                }
+                return new Promise( (resolve, reject) => {
+                    http.request({
+                        hostname,
+                        pathname,
+                        method: 'GET'
+                    }, (res) => {
+                        if (res.statusCode === 302 && res.headers.location) {
+                            delete getNextWorker.timeout // Reset timeout value if successful
+                            resolve(location);
+                        } else if (res.statusCode === 503) {
+                            setTimeout(() => {
+                                resolve(getNextWorker({hostname, pathname}));
+                            }, getNextWorker.timeout);
+                        }
+                        reject(new Error(`Unable to get worker, status code ${res.statusCode}`))
+                    })
+                })
+            }
+
+            const workURL = await getNextWorker( new URL(serverUrl) )
+
+            const req = http.request(workURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/octet-stream',
@@ -155,7 +185,11 @@ const run = async () => {
                     .pipe(crypto.createCipheriv(encryptionAlgorithm, encryptionKey, iv, {}))
                     .pipe(zlib.createGzip())
                     .pipe(req)
-        })
+        }))
+        if ( promises.length >= MaxWorkers ) {
+            await Promise.all(promises)
+            promises.length = 0
+        }
     }
 }
 run()
