@@ -1,0 +1,40 @@
+version: "3.7"
+services:
+    server:
+        build:
+            context: .
+            dockerfile: docker-server/Dockerfile
+        environment:
+            - NODE_ENV=production
+            - HOSTNAME=server
+        volumes:
+            - docker-shared:/app/docker-shared
+        ports:
+            - '3001:3000'
+            - '3010:3001'
+            - '3020:3002'
+            - '3030:3003'
+            - '3040:3004'
+        networks:
+            - shared_network
+    client:
+        build:
+            context: .
+            dockerfile: docker-client/Dockerfile
+        volumes:
+            - docker-shared:/app/docker-shared
+        environment:
+            - NODE_ENV=production
+            - HOSTNAME=client
+            - SERVERURL=http://server:3000
+        depends_on:
+            - server
+        ports:
+            - '3002:3000'
+        networks:
+            - shared_network
+networks:
+    shared_network:
+        driver: bridge
+volumes:
+    docker-shared:

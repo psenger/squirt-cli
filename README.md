@@ -12,14 +12,14 @@ capable of penetrating firewalls and not being flagged by UTMs or any other poli
 
 ```mermaid
 sequenceDiagram
-  walkDir ->>+ Client: get directory contents or recursive
-  walkDir ->>+ Client: isMatch / test GLOB
-  walkDir ->>+ Client: dryRun
-  walkDir ->>+ Client: Do permissions permit Read
-  Note over walkDir, Client: Build Encrypted Header
-  Client ->>+ Server: Send header via http.request Post
-  Client ->>+ Server: http.request Stream Body
-  Client ->>- walkDir: Next File / Directory
+    walkDir ->>+ Client: get directory contents or recurse
+    walkDir ->>+ Client: isMatch / test GLOB
+    walkDir ->>+ Client: dryRun
+    walkDir ->>+ Client: Do permissions permit Read
+    Note over walkDir, Client: Build Encrypted Header
+    Client ->>+ Server: Send header via http.request Post
+    Client ->>+ Server: http.request Stream Body
+    Client ->>- walkDir: Next File / Directory
 ```
 
 ## Encryption
@@ -42,7 +42,6 @@ different Nonce and IV.
 <!--START_SECTION:toc-->
 
 ## Table of contents
-
 - [squirt](#squirt)
   * [Design](#design)
   * [Encryption](#encryption)
@@ -56,7 +55,6 @@ different Nonce and IV.
 <!--END_SECTION:toc-->
 
 <!--START_SECTION:file:../INSTALL.md-->
-
 ## Install
 
 NPM
@@ -74,7 +72,6 @@ yarn add @psenger/squirt
 <!--END_SECTION:file:../INSTALL.md-->
 
 <!--START_SECTION:file:../TUTORIAL.md-->
-
 ## Usage - `squirt-server.js`
 
 ```bash
@@ -102,7 +99,6 @@ Enter a Directory: /tmp/upload
 <!--END_SECTION:file:../TUTORIAL.md-->
 
 <!--START_SECTION:file:../CONTRIBUTING.md-->
-
 ## Contributing
 
 Thanks for contributing! 😁 Here are some rules that will make your change to
@@ -115,8 +111,8 @@ squirt fruitful.
 * You are expected to add a unit test or two to cover the proposed changes.
 * Please run the tests and make sure tests are all passing before submitting your pull request
 * Do as the Romans do and stick with existing whitespace and formatting conventions (i.e., tabs instead of spaces, etc.)
-  * we have provided the following: `.editorconfig`
-  * Don't tamper with or change `.editorconfig`
+    * we have provided the following: `.editorconfig`
+    * Don't tamper with or change `.editorconfig`
 * Please consider adding an example under examples/ that demonstrates any new functionality
 
 <!--END_SECTION:file:../CONTRIBUTING.md-->
@@ -124,7 +120,6 @@ squirt fruitful.
 ## License
 
 <!--START_SECTION:file:../LICENSE-->
-
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
