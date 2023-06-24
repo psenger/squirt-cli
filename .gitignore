@@ -32,7 +32,7 @@ bower_components
 build/Release
 coverage
 dist
-docker-shared/
+docker/shared
 jspm_packages/
 lerna-debug.log*
 lib-cov

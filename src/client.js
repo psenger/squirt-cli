@@ -24,7 +24,7 @@ const run = async () => {
             passphrase: process.env.PASSPHRASE,
             salt: process.env.SALT,
             directory: process.env.DIRECTORY,
-            globPatterns: [new RegExp('.*', 'igm')],
+            globPatterns: [new RegExp(globToRegex('**'))],
             dryRun: false,
             MaxWorkers: 4,
             encryptionAlgorithm: process.env.ENCRYPTIONALGORITHM,
@@ -107,7 +107,7 @@ const run = async () => {
         ])
         globPatterns.push(...answer.globPatterns.map(globToRegex).map(globPattern => new RegExp(globPattern)))
     } else {
-        globPatterns.push(new RegExp('.*', 'igm'))
+        globPatterns.push(new RegExp(globToRegex('**')))
     }
     const MaxWorkers = 4
     const encryptionAlgorithm = 'aes-256-cbc'
@@ -184,7 +184,6 @@ run()
                         }
                         return new Promise((resolve, reject) => {
                             const req = http.request({
-                                // protocol: 'http:',
                                 hostname,
                                 port,
                                 path: pathname,
@@ -208,11 +207,7 @@ run()
                             req.end();
                         })
                     }
-
                     const workURL = await getNextWorker(new URL(serverUrl))
-
-                    console.log('workURL=', workURL);
-
                     const req = http.request(workURL, {
                         method: 'POST',
                         headers: {

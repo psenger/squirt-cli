@@ -109,12 +109,18 @@ module.exports.verifyBytes = (expectedBytes, filePath) => {
  * @param filePath
  */
 module.exports.ensurePathExists = function ensurePathExists (filePath) {
-    const DirName = dirname(normalize(filePath))
-    if (existsSync(DirName)) {
-        return
+    try {
+        const DirName = dirname(normalize(filePath))
+        if (existsSync(DirName)) {
+            return
+        }
+        module.exports.ensurePathExists(DirName)
+        mkdirSync(DirName)
+    } catch (e) {
+        // swallow the error, I dont care.
+        // with many threads creating directories, there will
+        // be failures.
     }
-    module.exports.ensurePathExists(DirName)
-    mkdirSync(DirName)
 }
 /**
  * A generator function that walks a directory and yields the file stats

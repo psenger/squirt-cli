@@ -1,5 +1,5 @@
 #!/bin/bash
-source /app/docker-shared/env_vars
+source /app/docker/shared/env_vars
 echo $PASSPHRASE
 echo $SALT
 echo $HOSTNAME

@@ -96,69 +96,82 @@ if (cluster.isMaster) {
             },
             filter: (str) => Number.parseInt(str.toString().trim(), 10),
         },])
-        const {passphrase, salt, directory} = await prompt([{
-            type: 'password', name: 'hostname', message: 'Enter a Passphrase', validate: async (str) => {
-                return (Buffer.byteLength(str, 'utf8') > 32) ? true : `Try again, the passphrase was only ${Buffer.byteLength(str, 'utf8')} bytes and needs to be 32 Bytes`
+        const {passphrase, salt, directory} = await prompt([
+            {
+                type: 'password',
+                name: 'hostname',
+                message: 'Enter a Passphrase',
+                validate: async (str) => {
+                    return (Buffer.byteLength(str, 'utf8') > 32) ? true : `Try again, the passphrase was only ${Buffer.byteLength(str, 'utf8')} bytes and needs to be 32 Bytes`
+                },
             },
-        }, {
-            type: 'password', name: 'salt', message: 'Enter a Salt', validate: async (str) => {
-                return (Buffer.byteLength(str, 'utf8') > 16) ? true : `Try again, the salt was only ${Buffer.byteLength(str, 'utf8')} bytes and needs to be 16 Bytes`
+            {
+                type: 'password',
+                name: 'salt',
+                message: 'Enter a Salt',
+                validate: async (str) => {
+                    return (Buffer.byteLength(str, 'utf8') > 16) ? true : `Try again, the salt was only ${Buffer.byteLength(str, 'utf8')} bytes and needs to be 16 Bytes`
+                },
             },
-        }, {
-            type: 'input', name: 'directory', message: 'Enter a directory', validate: async (str) => {
-                if (ifNotExist(str)) {
-                    return 'Try again, the Directory does not exist.'
-                }
-                if (isNotDirectory(str)) {
-                    return `Try again, ${str} does not appear to be a Directory.`
-                }
-                return true
-            }, filter: (str) => {
-                if (normalize(str).endsWith(sep)) {
-                    return str
-                }
-                return normalize(join(str, sep))
-            },
-        },])
+            {
+                type: 'input',
+                name: 'directory',
+                message: 'Enter a directory',
+                validate: async (str) => {
+                    if (ifNotExist(str)) {
+                        return 'Try again, the Directory does not exist.'
+                    }
+                    if (isNotDirectory(str)) {
+                        return `Try again, ${str} does not appear to be a Directory.`
+                    }
+                    return true
+                },
+                filter: (str) => {
+                    if (normalize(str).endsWith(sep)) {
+                        return str
+                    }
+                    return normalize(join(str, sep))
+                },
+            }
+        ])
         const encryptionAlgorithm = 'aes-256-cbc'
         return {hostname, port, passphrase, salt, directory, encryptionAlgorithm}
     }
     run()
-            .then(({hostname, port, passphrase, salt, directory, encryptionAlgorithm}) => {
-                const workDispatchServer = http.createServer((req, res) => {
-                    const freeServers = Array.from(WorkersMap.entries()).filter(([pid, [env, work, status]]) => status === 'FREE').map(([pid, [env, work, status]]) => env.PORT).map((p) => `http://${hostname}:${p}/`)
-                    if (freeServers.length === 0) {
-                        res.writeHead(503);
-                        res.end(`busy`);
-                        return
-                    }
-                    const Location = pickOneRandomItem(freeServers)
-                    console.log(`dispatching worker to ${Location}`);
-                    res.writeHead(302, {
-                        Location
-                    });
-                    res.end();
-                })
-                workDispatchServer.on('error', (e) => {
-                    throw e
+        .then(({hostname, port, passphrase, salt, directory, encryptionAlgorithm}) => {
+            const workDispatchServer = http.createServer((req, res) => {
+                const freeServers = Array.from(WorkersMap.entries()).filter(([pid, [env, work, status]]) => status === 'FREE').map(([pid, [env, work, status]]) => env.PORT).map((p) => `http://${hostname}:${p}/`)
+                if (freeServers.length === 0) {
+                    res.writeHead(503);
+                    res.end(`busy`);
+                    return
+                }
+                const Location = pickOneRandomItem(freeServers)
+                console.log(`dispatching worker to ${Location}`);
+                res.writeHead(302, {
+                    Location
                 });
-                workDispatchServer.listen(port, () => {
-                    console.log(`Control server pid ${process.pid} started http://${hostname}:${port}/`);
-                    // for (let i = 1; i < totalCPUs; i++) {
-                    for (let i = 1; i <= 4; i++) {
-                        const env = {
-                            HOSTNAME: hostname,
-                            PORT: port + i,
-                            PASSPHRASE: passphrase,
-                            SALT: salt,
-                            DIRECTORY: directory,
-                            ENCRYPTIONALGORITHM: encryptionAlgorithm
-                        }
-                        launchWorker(WorkersMap, env)
-                    }
-                })
+                res.end();
             })
-
+            workDispatchServer.on('error', (e) => {
+                throw e
+            });
+            workDispatchServer.listen(port, () => {
+                console.log(`Control server pid ${process.pid} started http://${hostname}:${port}/`);
+                // for (let i = 1; i < totalCPUs; i++) {
+                for (let i = 1; i <= 4; i++) {
+                    const env = {
+                        HOSTNAME: hostname,
+                        PORT: port + i,
+                        PASSPHRASE: passphrase,
+                        SALT: salt,
+                        DIRECTORY: directory,
+                        ENCRYPTIONALGORITHM: encryptionAlgorithm
+                    }
+                    launchWorker(WorkersMap, env)
+                }
+            })
+        })
 } else {
     const throwHttpError = (httpMessage, httpStatusCode = 500) => {
         const err = new Error(httpMessage)
