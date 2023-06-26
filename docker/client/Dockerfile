@@ -12,4 +12,3 @@ RUN chmod +x ./docker/scripts/* \
     && mkdir /app/data \
     && /app/docker/scripts/build-random-files-for-server.js 5 /app/data
 CMD [ "/app/docker/scripts/load_env_vars.sh", "/app/dist/squirt-client.js", "--headless" ]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]

@@ -4,23 +4,17 @@ const cluster = require('cluster'),
         zlib = require('zlib'),
         fs = require('fs'),
         crypto = require('crypto'),
-        totalCPUs = require('os').cpus().length,
         {prompt} = require("./lib/prompt"),
         {getIPAddress, isPortFree} = require('./lib/network'),
-        {
-            ifNotExist,
-            isNotDirectory,
-            ensurePathExists,
-            permissionsToFile,
-            setTimeOnFile,
-            verifyBytes,
-        } = require("./lib/dir"),
+        {ifNotExist, isNotDirectory, ensurePathExists,} = require("./lib/dir"),
+        {permissionsToFile, setTimeOnFile, verifyBytes,} = require("./lib/file"),
         {decryptValue, genKey} = require('./lib/crypt');
 
 const pickOneRandomItem = (items) => {
     return items[Math.floor(Math.random() * items.length)]
 };
 
+// Set up the Process Signal Traps, so the application can exit gracefully.
 const signalTraps = ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGABRT', 'SIGTERM', 'SIGUSR2'];
 signalTraps.forEach(function (signal) {
     process.on(signal, function () {
@@ -54,7 +48,7 @@ if (cluster.isMaster) {
         console.log(`worker ${pid} died ${code} ${signal}`);
         replaceWorker(pid, map)
     }
-    const run = async () => {
+    const getProgramParameters = async () => {
         // this allows us to pass in arguments for testing purposes
         const [, , ...args] = process.argv;
         if (args.length === 1 && args[0] === '--headless') {
@@ -137,10 +131,10 @@ if (cluster.isMaster) {
         const encryptionAlgorithm = 'aes-256-cbc'
         return {hostname, port, passphrase, salt, directory, encryptionAlgorithm}
     }
-    run()
+    getProgramParameters()
         .then(({hostname, port, passphrase, salt, directory, encryptionAlgorithm}) => {
             const workDispatchServer = http.createServer((req, res) => {
-                const freeServers = Array.from(WorkersMap.entries()).filter(([pid, [env, work, status]]) => status === 'FREE').map(([pid, [env, work, status]]) => env.PORT).map((p) => `http://${hostname}:${p}/`)
+                const freeServers = Array.from(WorkersMap.entries()).filter(([, [, , status]]) => status === 'FREE').map(([, [env, ,]]) => env.PORT).map((p) => `http://${hostname}:${p}/`)
                 if (freeServers.length === 0) {
                     res.writeHead(503);
                     res.end(`busy`);

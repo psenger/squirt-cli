@@ -6,16 +6,11 @@ const fs = require('fs'),
 
 const [, , ...args] = process.argv;
 
-// if ( args.length !== 2 ) {
-//     console.error(`Usage: ${programme} <max-depth> <root-dir>`);
-//     process.exit(1)
-// }
-
 const MAX_DEPTH = parseInt(args[0] || process.env.FILEDEPTH, 10); // Specify the maximum depth of the directory structure
 const ROOT_DIR = args[1] || process.env.DIRECTORY; // Specify the root directory name
 const MIN_FILES = 0; // Specify the minimum number of files per directory
 const MAX_FILES = 5; // Specify the maximum number of files per directory
-const MIN_SIZE = 1 * 1024 * 1024; // Specify the minimum file size in bytes 1mb
+const MIN_SIZE = 1024 * 1024; // Specify the minimum file size in bytes 1mb
 const MAX_SIZE = 10 * 1024 * 1024; // Specify the maximum file size in bytes 10MB
 
 let countDirectories = 0;

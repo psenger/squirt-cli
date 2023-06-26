@@ -3,10 +3,12 @@ const zlib = require('zlib'),
         crypto = require('crypto'),
         {encryptValue, genKey} = require('./lib/crypt'),
         {prompt} = require('./lib/prompt'),
-        {buildFileStat, walkDirGen, isNotDirectory, ifNotExist, globToRegex} = require("./lib/dir"),
+        {buildStat, walkDirGen, isNotDirectory, ifNotExist} = require("./lib/dir"),
+        {globToRegex} = require("./lib/glob"),
         http = require('http'),
         {join, normalize, sep} = require("path");
 
+// Set up the Process Signal Traps, so the application can exit gracefully.
 const signalTraps = ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGABRT', 'SIGTERM', 'SIGUSR2'];
 signalTraps.forEach(function (signal) {
     process.on(signal, function () {
@@ -14,8 +16,11 @@ signalTraps.forEach(function (signal) {
     });
 });
 
-const run = async () => {
-    // this allows us to pass in arguments for testing purposes
+const getProgramParameters = async () => {
+    // --headless allows passing parameters via environment
+    //   variables. This should only be done for testing,
+    //   environment variables are not secure, as a process
+    //   explorer ( via the super used ) can see them
     const [, , ...args] = process.argv;
     if (args.length === 1 && args[0] === '--headless') {
         console.log('Running in headless mode')
@@ -30,7 +35,7 @@ const run = async () => {
             encryptionAlgorithm: process.env.ENCRYPTIONALGORITHM,
         }
     }
-    // normal interactive mode
+    // Start normal interactive mode
     const {serverUrl, passphrase, salt, directory, includeGlob, dryRun} = await prompt([
         {
             type: 'input',
@@ -90,6 +95,7 @@ const run = async () => {
             def: false,
         },
     ])
+    // Collect Apache Glob Patterns
     const globPatterns = [];
     if (includeGlob) {
         const answer = await prompt([
@@ -122,7 +128,7 @@ const run = async () => {
         encryptionAlgorithm
     }
 }
-run()
+getProgramParameters()
         .then(async ({
                          serverUrl,
                          passphrase,
@@ -133,7 +139,7 @@ run()
                          MaxWorkers,
                          encryptionAlgorithm
                      }) => {
-            console.log(`Starting client sending to ${serverUrl}`);
+            console.log(`Starting client connecting to ${serverUrl}`);
             /**
              * the Key is what comes from the Server starting up...
              * @type {string}
@@ -172,7 +178,7 @@ run()
                     }
                     const meta = encryptValue(JSON.stringify({
                         ...nonce,
-                        ...buildFileStat(directory, filePath),
+                        ...buildStat(directory, filePath),
                         iv: iv.toString('hex')
                     }), passphrase, salt)
 
@@ -207,14 +213,15 @@ run()
                             req.end();
                         })
                     }
-                    const workURL = await getNextWorker(new URL(serverUrl))
-                    const req = http.request(workURL, {
+                    const url = await getNextWorker(new URL(serverUrl))
+                    const options = {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/octet-stream',
                             meta
                         }
-                    }, (res) => {
+                    }
+                    const callBack = (res) => {
                         let statusCode = res.statusCode;
                         let body = '';
                         res.on('data', (chunk) => {
@@ -223,7 +230,8 @@ run()
                         res.on('end', () => {
                             resolve({body, statusCode})
                         });
-                    });
+                    }
+                    const req = http.request(url, options, callBack);
                     req.on('error', reject);
                     fs.createReadStream(normalize(join(directory, filePath)))
                             .pipe(crypto.createCipheriv(encryptionAlgorithm, encryptionKey, iv, {}))

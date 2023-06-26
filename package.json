@@ -1,5 +1,5 @@
 {
-    "name": "@psenger/squirt",
+    "name": "@psenger/squirt-cli",
     "version": "1.0.0",
     "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
     "main": "dist/squirt-server.js",
@@ -11,6 +11,7 @@
         "squirt-server": "dist/squirt-server.js",
         "squirt-client": "dist/squirt-client.js"
     },
+    "preferGlobal": true,
     "scripts": {
         "server": "node src/squirt-server.js",
         "client": "node src/squirt-client.js",
@@ -33,5 +34,11 @@
         "documentation": "^14.0.2",
         "markdown-toc": "^1.2.0",
         "rollup": "^3.25.1"
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "node": true
+        }
     }
 }

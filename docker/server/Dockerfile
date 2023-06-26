@@ -12,4 +12,3 @@ RUN chmod +x /app/docker/scripts/* && \
     mkdir /app/data && \
     /app/docker/scripts/generate_environment_vars.sh
 CMD [ "/app/docker/scripts/load_env_vars.sh", "/app/dist/squirt-server.js", "--headless" ]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]

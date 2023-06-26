@@ -1,12 +1,113 @@
-# squirt
+# 🐙 squirt-cli
 
-> yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most
-> effective and stealth operation
+![Squirt](.github/squirt-image.png "Squirt")
 
-**note** this has not been tested on anything other than macOS with Node 16.
+> Yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP with
+> absolutely no dependencies for the most effective and stealth operation possible
+
+<!--START_SECTION:toc-->
+
+## Table of contents
+- [🐙 squirt-cli](#%F0%9F%90%99-squirt-cli)
+  * [WHY 🤬!?](#why-%F0%9F%A4%AC)
+  * [How does this work? ( TL;DR ) 🧐](#how-does-this-work--tldr--%F0%9F%A7%90)
+  * [Ports and Proxies](#ports-and-proxies)
+  * [Install](#install)
+  * [Usage - `squirt-server.js`](#usage---squirt-serverjs)
+  * [Usage - `squirt-client.js`](#usage---squirt-clientjs)
+  * [Design](#design)
+  * [Encryption](#encryption)
+  * [Contributing](#contributing)
+    + [Rules](#rules)
+  * [License](#license)
+
+<!--END_SECTION:toc-->
+
+## WHY 🤬!?
+
+`Why the #*&@!? do we need this?` If you have [RSYNC](https://linux.die.net/man/1/rsync), [SCP](https://www.man7.org/linux/man-pages/man1/scp.1.html),
+or any of the other fantastic secure file transfer tools **YOU DO NOT NEED THIS, TURN AWAY NOW**. If however, you are in
+a locked down environment, and just need to get some files off one system to another, and you have NodeJS installed,
+then this might be what you are looking for... (**_DID I MENTION, WITH ABSOLUTELY, NO DEPENDENCIES_**). You can
+literally, copy the code from the `dist/` ( you have two options compressed and not compressed ) directory into a
+file on your local machine, and run it. It will work on any platform that NodeJS supports 🎉.
+
+**Disclaimer** this has not been tested on anything other than Linux and MacOS with Node 16, I suspect the GLOB's will not work on a PC
+
+## How does this work? ( TL;DR ) 🧐
+
+Simply put, it uses the following NodeJS libraries: `cluster`, `crypto`, `fs`, `http`, `path`, `stream`, and `url`. All
+to create a cluster of http server ( one to control traffic ) that are capable of accepting an encrypted compressed stream
+of data from a client (💥 ya done!).
+
+## Ports and Proxies
 
 You might wonder why I use http and port 3000. This is the most ubiquitous protocol with the most used port, and is
 capable of penetrating firewalls and not being flagged by UTMs or any other policy enforcement tools.
+
+If you find it doesn't work properly through a Proxy raise a PR, and I will fix it. I have tested it through a proxy
+
+
+<!--START_SECTION:file:../INSTALL.md-->
+## Install
+
+NPM
+
+```bash
+npm install @psenger/squirt --save
+```
+
+or as a global library
+
+```bash
+npm install @psenger/squirt --g
+```
+
+or Yarn
+
+```bash
+yarn add @psenger/squirt
+```
+
+<!--END_SECTION:file:../INSTALL.md-->
+
+<!--START_SECTION:file:../TUTORIAL.md-->
+## Usage - `squirt-server.js`
+
+The Server, is the receiver of the files, and is the one that will be listening on a port for incoming connections.
+
+```bash
+npm install -g @psenger/squirt-cli
+squirt-server
+Enter the hostname (192.168.0.105):
+Enter the http Port (3000):
+Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
+Enter a Salt: Salted Peanuts taste good, but are not good for you!
+Enter a Directory: /tmp/download/
+Server listening on port http://192.168.0.105:3000/
+```
+
+Alternatively, you can literally copy-cut-paste the code in `dist/squirt-server.js` into a file on your local machine and run it.
+
+
+## Usage - `squirt-client.js`
+
+The Client, is the sender of the files.
+
+```bash
+npm install -g @psenger/squirt-cli
+squirt-client
+Enter a http URL: http://192.168.0.105:3000/
+Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
+Enter a Salt: Salted Peanuts taste good, but are not good for you!
+Enter a Directory: /tmp/upload
+```
+
+Alternatively, you can literally copy-cut-paste the code in `dist/squirt-client.js` into a file on your local machine and run it.
+
+<!--END_SECTION:file:../TUTORIAL.md-->
+
+<!--START_SECTION:file:../DESIGN.md-->
 
 ## Design
 
@@ -17,8 +118,11 @@ sequenceDiagram
     walkDir ->>+ Client: dryRun
     walkDir ->>+ Client: Do permissions permit Read
     Note over walkDir, Client: Build Encrypted Header
-    Client ->>+ Server: Send header via http.request Post
-    Client ->>+ Server: http.request Stream Body
+    Client ->>+ Server-Controller: Get free worker
+    Server-Controller ->>+ Server-Controller: take the next free Worker, or return http 503
+    Server-Controller ->>+ Client: Location to a free worker http 302
+    Client ->>+ Server-Worker: Send header ( with IV per request ) via http.request Post
+    Client ->>+ Server-Worker: http.request Stream Body
     Client ->>- walkDir: Next File / Directory
 ```
 
@@ -38,65 +142,7 @@ to the header payload because it is possible that the body may contain repeating
 header and decrypting it, will reduce the surface of the attack only to the one request. The next request will have a
 different Nonce and IV.
 
-
-<!--START_SECTION:toc-->
-
-## Table of contents
-- [squirt](#squirt)
-  * [Design](#design)
-  * [Encryption](#encryption)
-  * [Install](#install)
-  * [Usage - `squirt-server.js`](#usage---squirt-serverjs)
-  * [Usage - `squirt-client.js`](#usage---squirt-clientjs)
-  * [Contributing](#contributing)
-    + [Rules](#rules)
-  * [License](#license)
-
-<!--END_SECTION:toc-->
-
-<!--START_SECTION:file:../INSTALL.md-->
-## Install
-
-NPM
-
-```bash
-npm install @psenger/squirt --save
-```
-
-or Yarn
-
-```bash
-yarn add @psenger/squirt
-```
-
-<!--END_SECTION:file:../INSTALL.md-->
-
-<!--START_SECTION:file:../TUTORIAL.md-->
-## Usage - `squirt-server.js`
-
-```bash
-npm install -g @psenger/squirt
-squirt-server
-Enter the hostname (192.168.0.105):
-Enter the http Port (3000):
-Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
-Enter a Salt: Salted Peanuts taste good, but are not good for you!
-Enter a Directory: /tmp/download/
-Server listening on port http://192.168.0.105:3000/
-```
-
-## Usage - `squirt-client.js`
-
-```bash
-npm install -g @psenger/squirt
-squirt-client
-Enter a http URL: http://192.168.0.105:3000/
-Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
-Enter a Salt: Salted Peanuts taste good, but are not good for you!
-Enter a Directory: /tmp/upload
-```
-
-<!--END_SECTION:file:../TUTORIAL.md-->
+<!--END_SECTION:file:../DESIGN.md-->
 
 <!--START_SECTION:file:../CONTRIBUTING.md-->
 ## Contributing
