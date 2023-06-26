@@ -18,16 +18,16 @@ sequenceDiagram
 
 ## Encryption 🔑
 
-You might wonder why this uses Symmetric Encryption vs Asymmetric, and that is to reduce the complexity of key exchange
-and the need for a certificate authority. The encryption algorithm is aes-256-cbc, which requires an IV ( initialization
-vector ), a Key, and Passphrase.
+You might wonder why this uses symmetric encryption instead of asymmetric encryption. The reason is to reduce the
+complexity of key exchange and eliminate the need for a certificate authority. The chosen encryption algorithm is
+AES-256-CBC, which requires an initialization vector (IV), a key, and a passphrase.
 
-The header does not use an IV rather, it is a blank... but per request a random size and value Nonce is injected into
-front of every payload ( effectively behaving like an IV ). The IV that is attached to the cipher payload in the header
-is intended for the body... SO, at this point you might get excited and say "WHY WOULD YOU DO THIS!"
+The header does not use an IV. Instead, it remains blank. However, upon request, a random-sized and valued nonce is
+injected at the beginning of each payload, effectively behaving like an IV. The IV attached to the cipher payload in
+the header is intended for the body. Now, you might be curious and ask, "Why would you do this?"
 
-Let me explain, since it is possible to Man-in-the-middle a CBC without an IV, the Nonce in the header will deter an
-attack as it is different every request, and a new IV ( intended for the body ) is generated per request and is attached
-to the header payload because it is possible that the body may contain repeating content. Furthermore, capturing the
-header and decrypting it, will reduce the surface of the attack only to the one request. The next request will have a
-different Nonce and IV.
+Let me explain. Since it is possible to perform a Man-in-the-Middle attack on a CBC mode without an IV, the nonce in
+the header serves as a deterrent. It changes with every request, and a new IV (intended for the body) is generated for
+each request and attached to the header payload. This approach accounts for the possibility of repeating content in the
+body. Furthermore, capturing and decrypting the header reduces the attack surface to just that one request. The
+subsequent request will have a different nonce and IV.
