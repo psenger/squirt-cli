@@ -1,4 +1,5 @@
-## Install
+
+## Install ⚙️
 
 NPM
 

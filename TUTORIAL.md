@@ -1,4 +1,4 @@
-## Usage - `squirt-server.js`
+## Usage - `squirt-server.js` 🪓
 
 The Server, is the receiver of the files, and is the one that will be listening on a port for incoming connections.
 
@@ -16,7 +16,7 @@ Server listening on port http://192.168.0.105:3000/
 Alternatively, you can literally copy-cut-paste the code in `dist/squirt-server.js` into a file on your local machine and run it.
 
 
-## Usage - `squirt-client.js`
+## Usage - `squirt-client.js` 💣
 
 The Client, is the sender of the files.
 

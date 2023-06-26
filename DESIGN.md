@@ -1,5 +1,5 @@
 
-## Design
+## Design 🛠️
 
 ```mermaid
 sequenceDiagram
@@ -16,7 +16,7 @@ sequenceDiagram
     Client ->>- walkDir: Next File / Directory
 ```
 
-## Encryption
+## Encryption 🔑
 
 You might wonder why this uses Symmetric Encryption vs Asymmetric, and that is to reduce the complexity of key exchange
 and the need for a certificate authority. The encryption algorithm is aes-256-cbc, which requires an IV ( initialization

@@ -11,15 +11,15 @@
 - [🐙 squirt-cli](#%F0%9F%90%99-squirt-cli)
   * [WHY 🤬!?](#why-%F0%9F%A4%AC)
   * [How does this work? ( TL;DR ) 🧐](#how-does-this-work--tldr--%F0%9F%A7%90)
-  * [Ports and Proxies](#ports-and-proxies)
-  * [Install](#install)
-  * [Usage - `squirt-server.js`](#usage---squirt-serverjs)
-  * [Usage - `squirt-client.js`](#usage---squirt-clientjs)
-  * [Design](#design)
-  * [Encryption](#encryption)
-  * [Contributing](#contributing)
-    + [Rules](#rules)
-  * [License](#license)
+  * [Ports and Proxies 🚧](#ports-and-proxies-%F0%9F%9A%A7)
+  * [Install ⚙️](#install-%E2%9A%99%EF%B8%8F)
+  * [Usage - `squirt-server.js` 🪓](#usage---squirt-serverjs-%F0%9F%AA%93)
+  * [Usage - `squirt-client.js` 💣](#usage---squirt-clientjs-%F0%9F%92%A3)
+  * [Design 🛠️](#design-%F0%9F%9B%A0%EF%B8%8F)
+  * [Encryption 🔑](#encryption-%F0%9F%94%91)
+  * [Contributing 🤝](#contributing-%F0%9F%A4%9D)
+    + [Rules 🍪](#rules-%F0%9F%8D%AA)
+  * [License 🥸](#license-%F0%9F%A5%B8)
 
 <!--END_SECTION:toc-->
 
@@ -40,7 +40,7 @@ Simply put, it uses the following NodeJS libraries: `cluster`, `crypto`, `fs`, `
 to create a cluster of http server ( one to control traffic ) that are capable of accepting an encrypted compressed stream
 of data from a client (💥 ya done!).
 
-## Ports and Proxies
+## Ports and Proxies 🚧
 
 You might wonder why I use http and port 3000. This is the most ubiquitous protocol with the most used port, and is
 capable of penetrating firewalls and not being flagged by UTMs or any other policy enforcement tools.
@@ -49,7 +49,8 @@ If you find it doesn't work properly through a Proxy raise a PR, and I will fix 
 
 
 <!--START_SECTION:file:../INSTALL.md-->
-## Install
+
+## Install ⚙️
 
 NPM
 
@@ -72,7 +73,7 @@ yarn add @psenger/squirt
 <!--END_SECTION:file:../INSTALL.md-->
 
 <!--START_SECTION:file:../TUTORIAL.md-->
-## Usage - `squirt-server.js`
+## Usage - `squirt-server.js` 🪓
 
 The Server, is the receiver of the files, and is the one that will be listening on a port for incoming connections.
 
@@ -90,7 +91,7 @@ Server listening on port http://192.168.0.105:3000/
 Alternatively, you can literally copy-cut-paste the code in `dist/squirt-server.js` into a file on your local machine and run it.
 
 
-## Usage - `squirt-client.js`
+## Usage - `squirt-client.js` 💣
 
 The Client, is the sender of the files.
 
@@ -109,7 +110,7 @@ Alternatively, you can literally copy-cut-paste the code in `dist/squirt-client.
 
 <!--START_SECTION:file:../DESIGN.md-->
 
-## Design
+## Design 🛠️
 
 ```mermaid
 sequenceDiagram
@@ -126,7 +127,7 @@ sequenceDiagram
     Client ->>- walkDir: Next File / Directory
 ```
 
-## Encryption
+## Encryption 🔑
 
 You might wonder why this uses Symmetric Encryption vs Asymmetric, and that is to reduce the complexity of key exchange
 and the need for a certificate authority. The encryption algorithm is aes-256-cbc, which requires an IV ( initialization
@@ -145,12 +146,12 @@ different Nonce and IV.
 <!--END_SECTION:file:../DESIGN.md-->
 
 <!--START_SECTION:file:../CONTRIBUTING.md-->
-## Contributing
+## Contributing 🤝
 
 Thanks for contributing! 😁 Here are some rules that will make your change to
 squirt fruitful.
 
-### Rules
+### Rules 🍪
 
 * Raise a ticket to the feature or bug can be discussed
 * Pull requests are welcome, but must be accompanied by a ticket approved by the repo owner
@@ -163,7 +164,7 @@ squirt fruitful.
 
 <!--END_SECTION:file:../CONTRIBUTING.md-->
 
-## License
+## License 🥸
 
 <!--START_SECTION:file:../LICENSE-->
                     GNU GENERAL PUBLIC LICENSE
