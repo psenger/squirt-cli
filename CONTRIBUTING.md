@@ -1,9 +1,9 @@
-## Contributing
+## Contributing 🤝
 
 Thanks for contributing! 😁 Here are some rules that will make your change to
 squirt fruitful.
 
-### Rules
+### Rules 🍪
 
 * Raise a ticket to the feature or bug can be discussed
 * Pull requests are welcome, but must be accompanied by a ticket approved by the repo owner

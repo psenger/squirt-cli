@@ -1,7 +1,9 @@
-## Usage - `squirt-server.js`
+## Usage - `squirt-server.js` 🪓
+
+The Server, is the receiver of the files, and is the one that will be listening on a port for incoming connections.
 
 ```bash
-npm install -g @psenger/squirt
+npm install -g @psenger/squirt-cli
 squirt-server
 Enter the hostname (192.168.0.105):
 Enter the http Port (3000):
@@ -11,13 +13,20 @@ Enter a Directory: /tmp/download/
 Server listening on port http://192.168.0.105:3000/
 ```
 
-## Usage - `squirt-client.js`
+Alternatively, you can literally copy-cut-paste the code in `dist/squirt-server.js` into a file on your local machine and run it.
+
+
+## Usage - `squirt-client.js` 💣
+
+The Client, is the sender of the files.
 
 ```bash
-npm install -g @psenger/squirt
+npm install -g @psenger/squirt-cli
 squirt-client
 Enter a http URL: http://192.168.0.105:3000/
 Enter a Passphrase: Mr MonkeyGo Boom Boom when he EATS yellow Bannanaananans
 Enter a Salt: Salted Peanuts taste good, but are not good for you!
 Enter a Directory: /tmp/upload
 ```
+
+Alternatively, you can literally copy-cut-paste the code in `dist/squirt-client.js` into a file on your local machine and run it.

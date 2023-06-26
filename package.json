@@ -1,13 +1,8 @@
 {
-    "name": "@psenger/squirt",
+    "name": "@psenger/squirt-cli",
     "version": "1.0.0",
     "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
-    "main": [
-        "dist/squirt-server.js",
-        "dist/squirt-client.js",
-        "dist/squirt-server-compressed.js",
-        "dist/squirt-client-compressed.js"
-    ],
+    "main": "dist/squirt-server.js",
     "source": [
         "src/server.js",
         "src/client.js"
@@ -16,10 +11,12 @@
         "squirt-server": "dist/squirt-server.js",
         "squirt-client": "dist/squirt-client.js"
     },
+    "preferGlobal": true,
     "scripts": {
         "server": "node src/squirt-server.js",
         "client": "node src/squirt-client.js",
-        "build": "npm run build:client && npm run build:server && npm run build:client-compressed && npm run build:server-compressed && npm run docs:readme",
+        "clean": "node -e \"const {existsSync, readdirSync, lstatSync, unlinkSync, rmdirSync} = require('fs'); const {join} = require('path'); function rmDir(dirPath, subDir) { if (existsSync(dirPath)) { readdirSync(dirPath).forEach( (file) => { const filePath = join(dirPath, file); if (lstatSync(filePath).isDirectory()) {rmDir(filePath, true);} else unlinkSync(filePath) }); if (subDir) { rmdirSync(dirPath); } } }; rmDir(join(__dirname, 'dist'));\"",
+        "build": "npm run clean && npm run build:client && npm run build:server && npm run build:client-compressed && npm run build:server-compressed && npm run docs:readme",
         "docs:readme": "node ./.github/build-readme.js",
         "build:client-compressed": "cross-env COMPRESS=true rollup -c rollup-client.config.js && chmod 766 dist/squirt-client-compressed.js",
         "build:client": "rollup -c rollup-client.config.js && chmod 766 dist/squirt-client.js",
@@ -37,5 +34,11 @@
         "documentation": "^14.0.2",
         "markdown-toc": "^1.2.0",
         "rollup": "^3.25.1"
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "node": true
+        }
     }
 }

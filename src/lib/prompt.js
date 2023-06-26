@@ -4,7 +4,37 @@ const readline = require("readline"),
         os = require('os'),
         {Transform} = require('stream');
 
-module.exports.prompt = (questions) => {
+/**
+ * @typedef {Object} User
+ * @property {boolean} r - read
+ * @property {boolean} w - write
+ * @property {boolean} x - execute
+ */
+/**
+ * @typedef {Object} Group
+ * @property {boolean} r - read
+ * @property {boolean} w - write
+ * @property {boolean} x - execute
+ */
+/**
+ * @typedef {Object} Other
+ * @property {boolean} r - read
+ * @property {boolean} w - write
+ * @property {boolean} x - execute
+ */
+/**
+ * @typedef {Object} Question
+ * @property {User} u - The user permissions
+ * @property {Group} g - The group permissions
+ * @property {Other} o - The other permissions
+ */
+
+/**
+ * Prompt the user for input
+ * @param questions
+ * @returns {Promise<{}>}
+ */
+module.exports.prompt = async (questions) => {
     const answers = {};
 
     function askQuestion(question) {
@@ -90,6 +120,7 @@ module.exports.prompt = (questions) => {
                     stdin.resume();
                     stdout.write(`${message}: `);
                     let password = '';
+                    // noinspection JSUnusedGlobalSymbols
                     stdin.pipe(new Transform({
                         encoding: 'utf8',
                         transform(chunk, encoding, callback) {
