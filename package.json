@@ -4,6 +4,21 @@
     "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
     "main": "dist/squirt-server.js",
     "private": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "streaming",
+        "encryption",
+        "p2p",
+        "peer to peer",
+        "file transfer",
+        "file sharing",
+        "peers",
+        "torrent",
+        "download",
+        "nodejs"
+    ],
     "files": [
         "dist"
     ],
