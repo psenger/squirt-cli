@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP for the most effective and stealth operation",
     "main": "dist/squirt-server.js",
+    "private": false,
     "source": [
         "src/server.js",
         "src/client.js"
