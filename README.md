@@ -2,8 +2,7 @@
 
 ![Squirt](.github/squirt-image.png "Squirt")
 
-> Yet another peer to peer encrypted file transfer utilizing native NodeJS Streams, Crypto, and HTTP with
-> absolutely no dependencies for the most effective and stealth operation possible
+> Yet another peer-to-peer encrypted file transfer utilizing native Node.js Streams, Crypto, and HTTP with absolutely no dependencies, for the most effective and stealthy operation possible.
 
 <!--START_SECTION:toc-->
 
@@ -34,19 +33,30 @@ file on your local machine, and run it. It will work on any platform that NodeJS
 
 **Disclaimer** this has not been tested on anything other than Linux and MacOS with Node 16, I suspect the GLOB's will not work on a PC
 
+
+`Why the #*&@!? do we need this?` If you have [RSYNC](https://linux.die.net/man/1/rsync), [SCP](https://www.man7.org/linux/man-pages/man1/scp.1.html),
+or any of the other fantastic secure file transfer tools, **YOU DO NOT NEED THIS. TURN AWAY NOW**. However, if you are in a
+locked-down environment and just need to transfer some files from one system to another, and you have Node.js installed,
+then this might be what you are looking for... (**_DID I MENTION, WITH ABSOLUTELY NO DEPENDENCIES?_**). You can literally copy
+the code from the `dist/` directory (you have two options: compressed and uncompressed) into a file on your local machine
+and run it. It will work on any platform that Node.js supports 🎉.
+
+**Disclaimer:** This has not been tested on anything other than Linux and macOS with Node.js 16. I suspect the GLOBs
+will not work on a PC.
+
 ## How does this work? ( TL;DR ) 🧐
 
-Simply put, it uses the following NodeJS libraries: `cluster`, `crypto`, `fs`, `http`, `path`, `stream`, and `url`. All
-to create a cluster of http server ( one to control traffic ) that are capable of accepting an encrypted compressed stream
-of data from a client (💥 ya done!).
+Simply put, it uses the following Node.js libraries: `cluster`, `cluster`, `fs`, `http`, `path`, `stream`, and `url`.
+All to create a cluster of HTTP servers (one to control traffic) that are capable of accepting an encrypted compressed
+stream of data from a client (💥 you're done!).
 
 ## Ports and Proxies 🚧
 
-You might wonder why I use http and port 3000. This is the most ubiquitous protocol with the most used port, and is
-capable of penetrating firewalls and not being flagged by UTMs or any other policy enforcement tools.
+You might wonder why I use HTTP and port 3000. This is the most ubiquitous protocol with the most commonly used port and
+is capable of penetrating firewalls without being flagged by UTMs or any other policy enforcement tools.
 
-If you find it doesn't work properly through a Proxy raise a PR, and I will fix it. I have tested it through a proxy
-
+If you find that it doesn't work properly through a proxy, raise a PR, and I will fix it. I have tested it through a
+proxy.
 
 <!--START_SECTION:file:../INSTALL.md-->
 
@@ -55,19 +65,19 @@ If you find it doesn't work properly through a Proxy raise a PR, and I will fix 
 NPM
 
 ```bash
-npm install @psenger/squirt --save
+npm install @psenger/squirt-cli --save
 ```
 
 or as a global library
 
 ```bash
-npm install @psenger/squirt --g
+npm install @psenger/squirt-cli --g
 ```
 
 or Yarn
 
 ```bash
-yarn add @psenger/squirt
+yarn add @psenger/squirt-cli
 ```
 
 <!--END_SECTION:file:../INSTALL.md-->
@@ -75,7 +85,7 @@ yarn add @psenger/squirt
 <!--START_SECTION:file:../TUTORIAL.md-->
 ## Usage - `squirt-server.js` 🪓
 
-The Server, is the receiver of the files, and is the one that will be listening on a port for incoming connections.
+The server is the receiver of the files and is the one that will be listening on a port for incoming connections.
 
 ```bash
 npm install -g @psenger/squirt-cli
@@ -88,8 +98,8 @@ Enter a Directory: /tmp/download/
 Server listening on port http://192.168.0.105:3000/
 ```
 
-Alternatively, you can literally copy-cut-paste the code in `dist/squirt-server.js` into a file on your local machine and run it.
-
+Alternatively, you can simply copy and paste the code from `dist/squirt-server.js` into a file on your local machine and
+run it.
 
 ## Usage - `squirt-client.js` 💣
 
@@ -104,7 +114,8 @@ Enter a Salt: Salted Peanuts taste good, but are not good for you!
 Enter a Directory: /tmp/upload
 ```
 
-Alternatively, you can literally copy-cut-paste the code in `dist/squirt-client.js` into a file on your local machine and run it.
+Alternatively, you can simply copy and paste the code from `dist/squirt-client.js` into a file on your local machine and
+run it.
 
 <!--END_SECTION:file:../TUTORIAL.md-->
 
@@ -129,19 +140,19 @@ sequenceDiagram
 
 ## Encryption 🔑
 
-You might wonder why this uses Symmetric Encryption vs Asymmetric, and that is to reduce the complexity of key exchange
-and the need for a certificate authority. The encryption algorithm is aes-256-cbc, which requires an IV ( initialization
-vector ), a Key, and Passphrase.
+You might wonder why this uses symmetric encryption instead of asymmetric encryption. The reason is to reduce the
+complexity of key exchange and eliminate the need for a certificate authority. The chosen encryption algorithm is
+AES-256-CBC, which requires an initialization vector (IV), a key, and a passphrase.
 
-The header does not use an IV rather, it is a blank... but per request a random size and value Nonce is injected into
-front of every payload ( effectively behaving like an IV ). The IV that is attached to the cipher payload in the header
-is intended for the body... SO, at this point you might get excited and say "WHY WOULD YOU DO THIS!"
+The header does not use an IV. Instead, it remains blank. However, upon request, a random-sized and valued nonce is
+injected at the beginning of each payload, effectively behaving like an IV. The IV attached to the cipher payload in
+the header is intended for the body. Now, you might be curious and ask, "Why would you do this?"
 
-Let me explain, since it is possible to Man-in-the-middle a CBC without an IV, the Nonce in the header will deter an
-attack as it is different every request, and a new IV ( intended for the body ) is generated per request and is attached
-to the header payload because it is possible that the body may contain repeating content. Furthermore, capturing the
-header and decrypting it, will reduce the surface of the attack only to the one request. The next request will have a
-different Nonce and IV.
+Let me explain. Since it is possible to perform a Man-in-the-Middle attack on a CBC mode without an IV, the nonce in
+the header serves as a deterrent. It changes with every request, and a new IV (intended for the body) is generated for
+each request and attached to the header payload. This approach accounts for the possibility of repeating content in the
+body. Furthermore, capturing and decrypting the header reduces the attack surface to just that one request. The
+subsequent request will have a different nonce and IV.
 
 <!--END_SECTION:file:../DESIGN.md-->
 
