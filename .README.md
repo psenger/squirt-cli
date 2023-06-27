@@ -1,6 +1,6 @@
 # 🐙 squirt-cli
 
-![Squirt](.github/squirt-image.png "Squirt")
+![Squirt](https://github.com/psenger/squirt-cli/raw/main/.github/squirt-image.png "Squirt")
 
 > Yet another peer-to-peer encrypted file transfer utilizing native Node.js Streams, Crypto, and HTTP with absolutely no dependencies, for the most effective and stealthy operation possible.
 

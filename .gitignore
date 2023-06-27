@@ -5,6 +5,7 @@
 *.seed
 *.tgz
 *.tsbuildinfo
+.DS_Store
 .cache
 .cache/
 .dynamodb/
